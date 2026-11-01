@@ -2,7 +2,7 @@ import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 import { tripSchema } from '@/lib/schema';
 import { buildPrompt, SYSTEM_PROMPT } from '@/lib/prompt';
-import { geocodeTrip } from '@/lib/geocode';
+import { geocodeTrip, isInIndia } from '@/lib/geocode';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -16,7 +16,7 @@ function clean(body) {
     days: Math.min(Math.max(parseInt(body.days, 10) || 3, 1), 14),
     budget: Math.max(Number(body.budget) || 0, 0),
     travelers: Math.min(Math.max(parseInt(body.travelers, 10) || 1, 1), 20),
-    currency: String(body.currency || 'USD').slice(0, 3).toUpperCase(),
+    currency: String(body.currency || 'INR').slice(0, 3).toUpperCase(),
     pace: ['relaxed', 'balanced', 'packed'].includes(body.pace) ? body.pace : 'balanced',
     interests: Array.isArray(body.interests) ? body.interests.slice(0, 10).map(String) : [],
     startDate: body.startDate ? String(body.startDate).slice(0, 10) : '',
@@ -65,6 +65,10 @@ export async function POST(req) {
   const request = clean(await req.json().catch(() => ({})));
   if (!request.destination) return NextResponse.json({ error: 'Enter a destination.' }, { status: 400 });
   if (!request.budget) return NextResponse.json({ error: 'Enter a budget greater than 0.' }, { status: 400 });
+
+  if ((await isInIndia(request.destination)) === false) {
+    return NextResponse.json({ error: 'Only destinations in India are supported. Try a city like Jaipur, Goa or Kochi.' }, { status: 400 });
+  }
 
   try {
     const client = new OpenAI({ apiKey: process.env.AI_API_KEY, baseURL: BASE_URL });

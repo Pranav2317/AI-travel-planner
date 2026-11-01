@@ -9,7 +9,7 @@ export default function TripForm({ onSubmit, loading }) {
     destination: '',
     days: 3,
     budget: '',
-    currency: 'USD',
+    currency: 'INR',
     travelers: 2,
     pace: 'balanced',
     startDate: '',
@@ -34,7 +34,7 @@ export default function TripForm({ onSubmit, loading }) {
     >
       <label className="field field-destination">
         <span>Destination</span>
-        <input required placeholder="Lisbon, Portugal" value={form.destination} onChange={set('destination')} />
+        <input required placeholder="Jaipur, Rajasthan" value={form.destination} onChange={set('destination')} />
       </label>
 
       <div className="field-row">
