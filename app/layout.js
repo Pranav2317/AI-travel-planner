@@ -6,6 +6,8 @@ export const metadata = {
   description: 'Pick a destination and a budget. Get a day-by-day trip with places, restaurants and a map.',
 };
 
+export const viewport = { width: 'device-width', initialScale: 1 };
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
