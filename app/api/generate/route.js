@@ -59,6 +59,7 @@ async function askModel(client, request) {
 }
 
 export async function POST(req) {
+  const started = Date.now();
   if (!process.env.AI_API_KEY) {
     return NextResponse.json({ error: 'AI_API_KEY is not set. Add it to .env.local and restart the dev server.' }, { status: 500 });
   }
@@ -74,7 +75,8 @@ export async function POST(req) {
     const client = new OpenAI({ apiKey: process.env.AI_API_KEY, baseURL: BASE_URL });
     const trip = await askModel(client, request);
     if (!Array.isArray(trip?.days) || !Array.isArray(trip?.restaurants)) throw new Error('Incomplete trip from model');
-    await geocodeTrip(trip);
+    // Leave headroom under maxDuration; remaining places just won't get map pins.
+    await geocodeTrip(trip, started + 48_000);
     return NextResponse.json({ ...trip, id: crypto.randomUUID(), createdAt: new Date().toISOString(), request });
   } catch (err) {
     console.error(err);
